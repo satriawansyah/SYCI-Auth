@@ -1,8 +1,8 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { database } from "../../../config/database";
+import { database } from '../../../config/database';
+import type { AuditCreateInput } from '../types/audit-create.input';
 
 export class AuditRepository {
-  async createLog(data: Prisma.AuditLogCreateInput) {
+  async create(data: AuditCreateInput) {
     return database.client.auditLog.create({
       data,
     });
