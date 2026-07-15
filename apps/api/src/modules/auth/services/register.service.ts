@@ -7,14 +7,17 @@ import { AuthRepository } from '../repositories/auth.repository';
 import { UserMapper } from '../../user/mappers/user.mapper';
 import { AuditAction } from '../../../shared/enums/audit-action.enum';
 import { AuditEntity } from '../../../shared/enums/audit-entity.enum';
+import { RoleName } from '../../../shared/enums/role-name.enum';
 import type { RegisterRequest } from '../validators/register.validator';
 import type { UserResponseDto } from '../../user/dto/user-response.dto';
 
 export class RegisterService {
-  private readonly passwordService = new PasswordService();
-  private readonly authRepository = new AuthRepository();
-  private readonly roleRepository = new RoleRepository();
-  private readonly auditRepository = new AuditRepository();
+  constructor(
+    private readonly passwordService: PasswordService,
+    private readonly authRepository: AuthRepository,
+    private readonly roleRepository: RoleRepository,
+    private readonly auditRepository: AuditRepository
+  ) {}
 
   async execute(
     request: RegisterRequest,
@@ -40,50 +43,52 @@ export class RegisterService {
     // Hash password using PasswordService
     const passwordHash = await this.passwordService.hash(request.password);
 
+    // Lookup USER role outside transaction (roles are static)
+    const userRole = await this.roleRepository.findByName(RoleName.USER);
+    if (!userRole) {
+      throw new AppError(500, 'Default USER role not found');
+    }
+
     // Execute Prisma transaction
-    const transaction = await database.client.$transaction(
-      async (tx) => {
-        // Create User
-        const user = await tx.user.create({
-          data: {
-            email: request.email,
-            username: request.username || null,
-            passwordHash,
-            fullName: request.fullName,
-            phone: request.phone || null,
-            emailVerified: false,
-            isActive: true,
-          },
-        });
+    const user = await database.client.$transaction(async (tx) => {
+      // Create User within transaction
+      const createdUser = await this.authRepository.create(
+        {
+          email: request.email,
+          username: request.username || null,
+          passwordHash,
+          fullName: request.fullName,
+          phone: request.phone || null,
+          emailVerified: false,
+          isActive: true,
+        },
+        tx
+      );
 
-        // Assign USER role
-        const userRole = await this.roleRepository.findByName('USER');
-        if (!userRole) {
-          throw new AppError(500, 'Default USER role not found');
-        }
+      // Assign USER role within transaction
+      await this.authRepository.assignRole(
+        createdUser.id,
+        userRole.id,
+        tx
+      );
 
-        await tx.userRole.create({
-          data: {
-            userId: user.id,
-            roleId: userRole.id,
-          },
-        });
-
-        // Create AuditLog
-        await this.auditRepository.create({
-          userId: user.id,
+      // Create AuditLog within transaction
+      await this.auditRepository.create(
+        {
+          userId: createdUser.id,
           action: AuditAction.USER_REGISTERED,
           entity: AuditEntity.USER,
-          entityId: user.id,
+          entityId: createdUser.id,
           ipAddress: ipAddress || null,
           userAgent: userAgent || null,
-        });
+        },
+        tx
+      );
 
-        return user;
-      }
-    );
+      return createdUser;
+    });
 
     // Return UserResponseDto using UserMapper
-    return UserMapper.toResponse(transaction);
+    return UserMapper.toResponse(user);
   }
 }
