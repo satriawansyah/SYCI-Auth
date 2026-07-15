@@ -1,17 +1,15 @@
 import { Router } from 'express';
-import { AuthController } from '../controllers/auth.controller';
 import { validate } from '../../../core/middlewares/validation.middleware';
 import { asyncHandler } from '../../../core/utils/async-handler';
 import { registerSchema } from '../validators/register.validator';
+import { getRegisterController } from '../../../core/container';
 
 const router = Router();
 
-const controller = new AuthController();
-
 router.post(
   '/register',
-  validate(registerSchema),
-  asyncHandler(controller.register)
+  validate({ body: registerSchema }),
+  asyncHandler(getRegisterController().register)
 );
 
 export default router;
