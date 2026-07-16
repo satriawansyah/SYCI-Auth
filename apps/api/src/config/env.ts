@@ -1,4 +1,4 @@
-import "dotenv/config";
+import 'dotenv/config';
 
 export class Env {
   static readonly APP_NAME = process.env.APP_NAME!;
@@ -18,4 +18,13 @@ export class Env {
   static readonly DB_USER = process.env.DATABASE_USER!;
 
   static readonly DB_PASSWORD = process.env.DATABASE_PASSWORD!;
+
+  // JWT Configuration
+  static readonly JWT_SECRET = process.env.JWT_SECRET!;
+
+  static readonly JWT_ACCESS_EXPIRY = Number(process.env.JWT_ACCESS_EXPIRY || 900); // 15 minutes default
+
+  static readonly JWT_REFRESH_EXPIRY = Number(
+    process.env.JWT_REFRESH_EXPIRY || 604800
+  ); // 7 days default
 }
