@@ -1,4 +1,4 @@
-import type { User } from '../../../generated/prisma';
+import type { User } from '../../../generated/prisma/client';
 import type { UserResponseDto } from '../dto/user-response.dto';
 
 export class UserMapper {

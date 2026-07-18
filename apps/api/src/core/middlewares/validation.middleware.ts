@@ -32,7 +32,7 @@ export function validate(schemas: ValidationSchemas | ZodSchema) {
           new AppError(400, 'Validation Error', result.error.flatten())
         );
       }
-      req.query = result.data;
+      req.query = result.data as typeof req.query;
     }
 
     // Validate params
@@ -43,7 +43,7 @@ export function validate(schemas: ValidationSchemas | ZodSchema) {
           new AppError(400, 'Validation Error', result.error.flatten())
         );
       }
-      req.params = result.data;
+      req.params = result.data as typeof req.params;
     }
 
     next();

@@ -1,4 +1,4 @@
-import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import type { JwtConfig } from '../../shared/types/jwt-config.type';
 import type {
   AccessTokenPayload,
@@ -122,11 +122,11 @@ export class JwtService {
 
       return decoded;
     } catch (error) {
-      if (error instanceof TokenExpiredError) {
+      if (error instanceof jwt.TokenExpiredError) {
         throw new JwtError(JwtErrorReason.EXPIRED_TOKEN);
       }
 
-      if (error instanceof JsonWebTokenError) {
+      if (error instanceof jwt.JsonWebTokenError) {
         if (error.message.includes('invalid signature')) {
           throw new JwtError(JwtErrorReason.INVALID_SIGNATURE);
         }

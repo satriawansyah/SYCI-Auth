@@ -5,7 +5,16 @@ import { RoleRepository } from '../modules/roles/repositories/role.repository';
 import { AuditRepository } from '../modules/audit/repositories/audit.repository';
 import { RegisterService } from '../modules/auth/services/register.service';
 import { RegisterController } from '../modules/auth/controllers/register.controller';
-import { Env } from './env';
+import { LoginController } from '../modules/auth/controllers/login.controller';
+import { LoginService } from '../modules/auth/services/login.service';
+import { RefreshService } from '../modules/auth/services/refresh.service';
+import { LogoutService } from '../modules/auth/services/logout.service';
+import { RefreshController } from '../modules/auth/controllers/refresh.controller';
+import { LogoutController } from '../modules/auth/controllers/logout.controller';
+import { MeController } from '../modules/auth/controllers/me.controller';
+import { RoleManagementService } from '../modules/roles/services/role-management.service';
+import { RoleManagementController } from '../modules/roles/controllers/role-management.controller';
+import { Env } from '../config/env';
 
 // Singleton instances
 let passwordService: PasswordService;
@@ -15,6 +24,15 @@ let roleRepository: RoleRepository;
 let auditRepository: AuditRepository;
 let registerService: RegisterService;
 let registerController: RegisterController;
+let loginService: LoginService;
+let loginController: LoginController;
+let refreshService: RefreshService;
+let logoutService: LogoutService;
+let refreshController: RefreshController;
+let logoutController: LogoutController;
+let meController: MeController;
+let roleManagementService: RoleManagementService;
+let roleManagementController: RoleManagementController;
 
 export function getPasswordService(): PasswordService {
   if (!passwordService) {
@@ -72,4 +90,82 @@ export function getRegisterController(): RegisterController {
     registerController = new RegisterController(getRegisterService());
   }
   return registerController;
+}
+
+export function getLoginService(): LoginService {
+  if (!loginService) {
+    loginService = new LoginService(
+      getPasswordService(),
+      getJwtService(),
+      getAuthRepository(),
+      getAuditRepository()
+    );
+  }
+  return loginService;
+}
+
+export function getLoginController(): LoginController {
+  if (!loginController) {
+    loginController = new LoginController(getLoginService());
+  }
+  return loginController;
+}
+
+export function getRefreshService(): RefreshService {
+  if (!refreshService) {
+    refreshService = new RefreshService(
+      getPasswordService(),
+      getJwtService(),
+      getAuthRepository()
+    );
+  }
+  return refreshService;
+}
+
+export function getLogoutService(): LogoutService {
+  if (!logoutService) {
+    logoutService = new LogoutService(getJwtService(), getAuthRepository());
+  }
+  return logoutService;
+}
+
+export function getRefreshController(): RefreshController {
+  if (!refreshController) {
+    refreshController = new RefreshController(getRefreshService());
+  }
+  return refreshController;
+}
+
+export function getLogoutController(): LogoutController {
+  if (!logoutController) {
+    logoutController = new LogoutController(getLogoutService());
+  }
+  return logoutController;
+}
+
+export function getMeController(): MeController {
+  if (!meController) {
+    meController = new MeController(getAuthRepository());
+  }
+  return meController;
+}
+
+export function getRoleManagementService(): RoleManagementService {
+  if (!roleManagementService) {
+    roleManagementService = new RoleManagementService(
+      getAuthRepository(),
+      getRoleRepository(),
+      getAuditRepository()
+    );
+  }
+  return roleManagementService;
+}
+
+export function getRoleManagementController(): RoleManagementController {
+  if (!roleManagementController) {
+    roleManagementController = new RoleManagementController(
+      getRoleManagementService()
+    );
+  }
+  return roleManagementController;
 }
