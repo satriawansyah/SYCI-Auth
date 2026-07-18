@@ -27,4 +27,19 @@ export class Env {
   static readonly JWT_REFRESH_EXPIRY = Number(
     process.env.JWT_REFRESH_EXPIRY || 604800
   ); // 7 days default
+
+  // Cookie Configuration
+  static readonly REFRESH_TOKEN_COOKIE_NAME =
+    process.env.REFRESH_TOKEN_COOKIE_NAME || 'syci_refresh_token';
+
+  static readonly REFRESH_TOKEN_COOKIE_SECURE =
+    process.env.REFRESH_TOKEN_COOKIE_SECURE === 'true' || this.NODE_ENV === 'production';
+
+  static readonly REFRESH_TOKEN_COOKIE_PATH = process.env.REFRESH_TOKEN_COOKIE_PATH || '/api/v1/auth';
+
+  static readonly REFRESH_TOKEN_COOKIE_DOMAIN = process.env.REFRESH_TOKEN_COOKIE_DOMAIN;
+
+  static readonly REFRESH_TOKEN_COOKIE_SAME_SITE = (
+    process.env.REFRESH_TOKEN_COOKIE_SAME_SITE || 'strict'
+  ) as 'strict' | 'lax' | 'none';
 }

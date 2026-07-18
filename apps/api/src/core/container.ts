@@ -1,5 +1,6 @@
 import { PasswordService } from './security/password.service';
 import { JwtService } from './security/jwt.service';
+import { CookieService } from './security/cookie.service';
 import { AuthRepository } from '../modules/auth/repositories/auth.repository';
 import { RoleRepository } from '../modules/roles/repositories/role.repository';
 import { AuditRepository } from '../modules/audit/repositories/audit.repository';
@@ -19,6 +20,7 @@ import { Env } from '../config/env';
 // Singleton instances
 let passwordService: PasswordService;
 let jwtService: JwtService;
+let cookieService: CookieService;
 let authRepository: AuthRepository;
 let roleRepository: RoleRepository;
 let auditRepository: AuditRepository;
@@ -50,6 +52,21 @@ export function getJwtService(): JwtService {
     });
   }
   return jwtService;
+}
+
+export function getCookieService(): CookieService {
+  if (!cookieService) {
+    cookieService = new CookieService({
+      name: Env.REFRESH_TOKEN_COOKIE_NAME,
+      httpOnly: true,
+      secure: Env.REFRESH_TOKEN_COOKIE_SECURE,
+      sameSite: Env.REFRESH_TOKEN_COOKIE_SAME_SITE,
+      path: Env.REFRESH_TOKEN_COOKIE_PATH,
+      domain: Env.REFRESH_TOKEN_COOKIE_DOMAIN,
+      maxAge: Env.JWT_REFRESH_EXPIRY * 1000, // Convert seconds to milliseconds
+    });
+  }
+  return cookieService;
 }
 
 export function getAuthRepository(): AuthRepository {
