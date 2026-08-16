@@ -71,6 +71,8 @@
 
   "exclude": [
     "dist",
-    "node_modules"
+    "node_modules",
+    "src/**/__tests__/**",
+    "src/**/*.spec.ts"
   ]
 }

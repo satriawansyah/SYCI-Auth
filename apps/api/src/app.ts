@@ -1,32 +1,26 @@
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import cookieParser from "cookie-parser";
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
-import { Env } from "./config/env";
-import routes from "./routes";
-import authRoutes from "./modules/auth/routes/auth.routes";
-import { errorMiddleware } from "./middlewares/error.middleware";
+import routes from './routes';
+import { errorMiddleware } from './core/middlewares/error.middleware';
+import { corsOptions } from './config/cors';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
-app.use(cors({
-
-    origin: Env.FRONTEND_URL,
-
-    credentials: true
-
-}));
-
-app.use(errorMiddleware);
-app.use("/api/v1", routes);
-app.use("/api/v1/auth", authRoutes);
-
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
 app.use(cookieParser());
+
+app.use('/api/v1', routes);
+
+app.use(errorMiddleware);
 
 export default app;
