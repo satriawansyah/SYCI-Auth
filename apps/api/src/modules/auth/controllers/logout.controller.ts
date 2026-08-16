@@ -1,19 +1,18 @@
 import type { Request, Response } from 'express';
-import { Env } from '../../../config/env';
 import { ApiResponse } from '../../../core/response/api-response';
+import { CookieService } from '../../../core/security/cookie.service';
 import { LogoutService } from '../services/logout.service';
 
 export class LogoutController {
-  constructor(private readonly logoutService: LogoutService) {}
+  constructor(
+    private readonly logoutService: LogoutService,
+    private readonly cookieService: CookieService
+  ) {}
 
   logout = async (req: Request, res: Response) => {
-    await this.logoutService.execute(req.cookies.refreshToken as string | undefined);
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: Env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-    });
+    const refreshToken = this.cookieService.getRefreshTokenCookie(req) ?? undefined;
+    await this.logoutService.execute(refreshToken);
+    this.cookieService.clearRefreshTokenCookie(res);
 
     return ApiResponse.success(res, undefined, 'Logout successful');
   };

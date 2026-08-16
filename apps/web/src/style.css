@@ -86,6 +86,7 @@ input:focus { border-color: #358ac8; box-shadow: 0 0 0 4px rgba(53, 138, 200, .1
 .notice { margin: 0 0 20px; border-radius: 9px; padding: 11px 13px; font-size: 14px; line-height: 1.45; }
 .notice.success { border: 1px solid #b9e4ca; background: #edfbf3; color: #17683a; }
 .notice.error { border: 1px solid #f2c4c8; background: #fff3f4; color: #a52d39; }
+.notice:not(.success):not(.error) { border: 1px solid #c8d6f2; background: #eef2fd; color: #2b4c9b; }
 .loading-state { display: flex; align-items: center; gap: 12px; color: #60758d; font-weight: 600; }
 .spinner { width: 20px; height: 20px; border: 2px solid #d3e0ec; border-top-color: #176ea8; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

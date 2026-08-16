@@ -123,7 +123,7 @@ export function getLoginService(): LoginService {
 
 export function getLoginController(): LoginController {
   if (!loginController) {
-    loginController = new LoginController(getLoginService());
+    loginController = new LoginController(getLoginService(), getCookieService());
   }
   return loginController;
 }
@@ -148,14 +148,14 @@ export function getLogoutService(): LogoutService {
 
 export function getRefreshController(): RefreshController {
   if (!refreshController) {
-    refreshController = new RefreshController(getRefreshService());
+    refreshController = new RefreshController(getRefreshService(), getCookieService());
   }
   return refreshController;
 }
 
 export function getLogoutController(): LogoutController {
   if (!logoutController) {
-    logoutController = new LogoutController(getLogoutService());
+    logoutController = new LogoutController(getLogoutService(), getCookieService());
   }
   return logoutController;
 }

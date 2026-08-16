@@ -11,6 +11,26 @@ const isRestoringSession = ref(true)
 const message = ref('')
 const error = ref('')
 
+// SSO: other apps on your subdomains send users here as
+// https://auth.yourdomain.com/?redirect=https://app1.yourdomain.com/callback
+// when they need a login. After a successful (or restored) session, we send
+// the browser back — but only after the API confirms the target is trusted.
+const redirectTarget = ref(new URLSearchParams(window.location.search).get('redirect') || '')
+
+async function goToRedirectTargetIfSafe() {
+  if (!redirectTarget.value) return false
+  try {
+    const { safe } = await api.checkRedirect(redirectTarget.value)
+    if (safe) {
+      window.location.href = redirectTarget.value
+      return true
+    }
+  } catch {
+    // fall through and just show the dashboard instead
+  }
+  return false
+}
+
 const loginForm = reactive({ email: '', password: '' })
 const registerForm = reactive({
   fullName: '',
@@ -44,6 +64,10 @@ function showView(nextView) {
 async function setSession(session) {
   user.value = session.user
   accessToken.value = session.accessToken
+
+  const redirected = await goToRedirectTargetIfSafe()
+  if (redirected) return // browser is navigating away, no need to render the dashboard
+
   view.value = 'dashboard'
   await loadUsers()
 }
@@ -209,6 +233,10 @@ onMounted(restoreSession)
               {{ view === 'login' ? 'Gunakan email dan password Anda untuk melanjutkan.' : 'Data ini digunakan untuk membuat identitas akun Anda.' }}
             </p>
           </header>
+
+          <p v-if="redirectTarget" class="notice" role="status">
+            Anda akan diarahkan kembali ke aplikasi asal setelah berhasil masuk.
+          </p>
 
           <p v-if="message" class="notice success" role="status">{{ message }}</p>
           <p v-if="error" class="notice error" role="alert">{{ error }}</p>

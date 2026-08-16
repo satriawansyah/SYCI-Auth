@@ -38,6 +38,9 @@ export const api = {
   me(accessToken) {
     return request('/auth/me', { accessToken })
   },
+  checkRedirect(url) {
+    return request(`/auth/redirect-check?url=${encodeURIComponent(url)}`)
+  },
   users(accessToken) {
     return request('/users', { accessToken })
   },
